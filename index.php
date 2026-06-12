@@ -1,86 +1,29 @@
-<!DOCTYPE html>
-<?php include("functions/functions.php"); ?>
-<html>
-    <head>
-        <title>My Online Shop</title>
-        <link rel="stylesheet" href="styles/style.css" media="all" />
-    </head>
-    <body>
-        <div class="main_wrapper">
+<?php
+$page_title = "My Online Shop - Home";
+include("header.php");
+?>
 
-            <!-- ===== MENUBAR STARTS HERE ===== -->
-            <div class="menubar">
-                <ul id="menu">
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">All Products</a></li>
-                    <li><a href="#">My Account</a></li>
-                    <li><a href="#">Sign Up</a></li>
-                    <li><a href="#">Shopping Cart</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                </ul>
-                <div id="form">
-                    <form method="get" action="results.php"
-                          enctype="multipart/form-data">
-                        <input type="text" name="user_query"
-                               placeholder="Search a Product"/>
-                        <input type="submit" name="search" value="search"/>
-                    </form>
-                </div>
-            </div>
-            <!-- ===== MENUBAR ENDS HERE ===== -->
+<!-- ===== HERO / WELCOME BANNER ===== -->
+<section class="hero">
+    <div class="hero_text">
+        <h1>Welcome to <span>My Online Shop</span></h1>
+        <p>Discover great products at unbeatable prices, all in one place.</p>
+        <a href="#products" class="btn btn_primary btn_lg">Shop Now</a>
+    </div>
+    <div class="hero_image">
+        <img src="images/ad_banner.gif" alt="Featured offers" />
+    </div>
+</section>
 
-            <!-- ===== SIDEBAR STARTS HERE ===== -->
-            <div id="sidebar">
-                <ul>
-                    <li><b>Categories</b></li>
-                    <?php getCats(); ?>
-                </ul>
-                <ul>
-                    <li><b>Brands</b></li>
-                    <?php getBrands(); ?>
-                </ul>
-            </div>
-            <!-- ===== SIDEBAR ENDS HERE ===== -->
+<!-- ===== FEATURED PRODUCTS ===== -->
+<section id="products" class="section">
+    <div class="section_head">
+        <h2 class="section_title">Featured Products</h2>
+        <p class="section_subtitle">Hand-picked items just for you</p>
+    </div>
+    <div class="product_grid">
+        <?php getPro(); ?>
+    </div>
+</section>
 
-            <!-- ===== HEADER STARTS HERE ===== -->
-            <div class="header_wrapper">
-                <img id="logo" src="images/logo.gif" />
-                <img id="banner" src="images/ad_banner.gif" />
-            </div>
-            <!-- ===== HEADER ENDS HERE ===== -->
-
-            <!-- ===== CONTENT AREA STARTS HERE ===== -->
-            <div class="content_wrapper">
-                <div id="content_area">
-
-                    <div id="shopping_cart">
-                        <span style="float:right; font-size:18px;
-                              padding:5px; line-height:40px;">
-                            Welcome Guest!
-                            <b style="color:yellow">Shopping Cart -</b>
-                            Total items: Total Price:
-                            <a href="cart.php" style="color:yellow">
-                                Go to Cart
-                            </a>
-                        </span>
-                    </div>
-
-                    <div id="products_box">
-                        <?php getPro(); ?>
-                    </div>
-
-                </div>
-            </div>
-            <!-- ===== CONTENT AREA ENDS HERE ===== -->
-
-            <!-- ===== FOOTER STARTS HERE ===== -->
-            <div id="footer">
-                <h2 style="text-align:center; padding-top:15px;">
-                    &copy; 2016 by The Webmaster
-                </h2>
-            </div>
-            <!-- ===== FOOTER ENDS HERE ===== -->
-
-        </div>
-    </body>
-</html>
+<?php include("footer.php"); ?>
