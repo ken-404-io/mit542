@@ -72,34 +72,60 @@
                             $get_pro = "SELECT * FROM products
                                         WHERE product_id='$product_id'";
                             $run_pro = mysqli_query($con, $get_pro);
-                            while($row_pro = mysqli_fetch_array($run_pro)) {
-                                $pro_id    = $row_pro['product_id'];
-                                $pro_title = $row_pro['product_title'];
-                                $pro_price = $row_pro['product_price'];
-                                $pro_image = $row_pro['product_image'];
-                                $pro_desc  = $row_pro['product_desc'];
 
-                                echo "
-                                <div id='single_product'>
-                                    <h3>$pro_title</h3>
-                                    <img src='images/$pro_image'
-                                         width='400' height='300'/>
-                                    <img src='images/$pro_image'
-                                         width='180' height='180'/>
-                                    <p><b>$ $pro_price</b></p>
-                                    <p>$pro_desc</p>
-                                    <a href='index.php'
-                                       style='float:left;'>Go Back</a>
-                                    <a href='index.php?pro_id=$pro_id'>
-                                        <button style='float:right'>
-                                            Add to Cart
-                                        </button>
-                                    </a>
-                                </div>
-                                ";
+                            if($run_pro && mysqli_num_rows($run_pro) > 0) {
+                                while($row_pro = mysqli_fetch_array($run_pro)) {
+                                    $pro_id    = $row_pro['product_id'];
+                                    $pro_title = $row_pro['product_title'];
+                                    $pro_price = $row_pro['product_price'];
+                                    $pro_image = $row_pro['product_image'];
+                                    $pro_desc  = $row_pro['product_desc'];
+
+                                    echo "
+                                    <div class='product_detail'>
+                                        <div class='detail_image'>
+                                            <img src='images/$pro_image'
+                                                 alt='$pro_title' />
+                                        </div>
+                                        <div class='detail_info'>
+                                            <h2>$pro_title</h2>
+                                            <p class='detail_price'>
+                                                $ $pro_price
+                                            </p>
+                                            <p class='detail_desc'>$pro_desc</p>
+                                            <div class='detail_buttons'>
+                                                <a class='btn_back'
+                                                   href='index.php'>
+                                                    &larr; Go Back
+                                                </a>
+                                                <a class='btn_cart'
+                                                   href='index.php?pro_id=$pro_id'>
+                                                    Add to Cart
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    ";
+                                }
+                            } else {
+                                echo "<p class='not_found'>
+                                        Sorry, that product could not be found.
+                                        <a href='index.php'>Return to shop</a>
+                                      </p>";
                             }
+                        } else {
+                            echo "<p class='not_found'>
+                                    No product selected.
+                                    <a href='index.php'>Browse our products</a>
+                                  </p>";
                         }
                         ?>
+
+                        <!-- ===== RELATED PRODUCTS ===== -->
+                        <h3 class="related_heading">You May Also Like</h3>
+                        <div class="related_box">
+                            <?php getPro(); ?>
+                        </div>
                     </div>
 
                 </div>
