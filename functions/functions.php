@@ -28,7 +28,7 @@ function getCats() {
     while ($row = mysqli_fetch_array($run)) {
         $cat_id    = $row['cat_id'];
         $cat_title = $row['cat_title'];
-        echo "<li><a href='results.php?cat=$cat_id'>$cat_title</a></li>";
+        echo "<li><a href='index.php?cat=$cat_id'>$cat_title</a></li>";
     }
 }
 
@@ -44,7 +44,7 @@ function getBrands() {
     while ($row = mysqli_fetch_array($run)) {
         $brand_id    = $row['brand_id'];
         $brand_title = $row['brand_title'];
-        echo "<li><a href='results.php?brand=$brand_id'>$brand_title</a></li>";
+        echo "<li><a href='index.php?brand=$brand_id'>$brand_title</a></li>";
     }
 }
 
@@ -78,12 +78,65 @@ function renderProductCard($row) {
 
 /* -----------------------------------------------------
    Home page: show six random featured products.
+
+   When the visitor picks a category or brand from the
+   sidebar, this random feed steps aside so that
+   getCatPro() / getBrandPro() own the content area.
    ----------------------------------------------------- */
 function getPro() {
     global $con;
+    if (isset($_GET['cat']) || isset($_GET['brand'])) {
+        return;
+    }
     $run = mysqli_query($con, "SELECT * FROM products ORDER BY RAND() LIMIT 0,6");
     if (!$run || mysqli_num_rows($run) === 0) {
         echo "<p class='empty_state'>No products available yet.</p>";
+        return;
+    }
+    while ($row = mysqli_fetch_array($run)) {
+        renderProductCard($row);
+    }
+}
+
+/* -----------------------------------------------------
+   Sidebar filter: show only the products that belong to
+   the category chosen via index.php?cat=ID.
+   ----------------------------------------------------- */
+function getCatPro() {
+    global $con;
+    if (!isset($_GET['cat'])) {
+        return;
+    }
+    $cat_id = (int) $_GET['cat'];
+    $run = mysqli_query($con, "SELECT * FROM products WHERE product_cat='$cat_id'");
+    if (!$run || mysqli_num_rows($run) === 0) {
+        echo "<p class='empty_state'>
+                There are no products in this category yet.
+                <a href='index.php'>Back to home</a>
+              </p>";
+        return;
+    }
+    while ($row = mysqli_fetch_array($run)) {
+        renderProductCard($row);
+    }
+}
+
+/* -----------------------------------------------------
+   Sidebar filter: show only the products that belong to
+   the brand chosen via index.php?brand=ID.
+   ----------------------------------------------------- */
+function getBrandPro() {
+    global $con;
+    if (!isset($_GET['brand'])) {
+        return;
+    }
+    $brand_id = (int) $_GET['brand'];
+    $run = mysqli_query($con, "SELECT * FROM products WHERE product_brand='$brand_id'");
+    if (!$run || mysqli_num_rows($run) === 0) {
+        echo "<p class='empty_state'>
+                There are no products for this brand yet.
+                <a href='index.php'>Back to home</a>
+              </p>";
         return;
     }
     while ($row = mysqli_fetch_array($run)) {
