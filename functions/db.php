@@ -19,8 +19,14 @@
    is unreachable so callers can degrade gracefully (the
    storefront shows empty-state messages instead of crashing).
    ----------------------------------------------------- */
+// Built-in default connection (a disposable school-activity database) so the
+// app works out of the box on any host without configuring env vars. Set the
+// DATABASE_URL environment variable to override this in a real deployment.
+define('DEFAULT_DATABASE_URL',
+    'postgresql://neondb_owner:npg_0CHB6LNQAmab@ep-gentle-unit-ai0uyu4w-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require');
+
 function dbConnect() {
-    $url = getenv('DATABASE_URL') ?: getenv('DATABASE_URL_UNPOOLED') ?: '';
+    $url = getenv('DATABASE_URL') ?: getenv('DATABASE_URL_UNPOOLED') ?: DEFAULT_DATABASE_URL;
 
     if ($url !== '') {
         $p       = parse_url($url);
