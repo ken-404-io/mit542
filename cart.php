@@ -74,14 +74,14 @@ include("header.php");
                         $row      = mysqli_fetch_array($run);
                         $title    = $row['product_title'];
                         $price    = (float) $row['product_price'];
-                        $image    = $row['product_image'];
+                        $image    = productImageUrl($row['product_image']);
                         $subtotal = $price * $qty;
                         $grand_total += $subtotal;
 
                         echo "
                         <tr>
                             <td class='cart_product'>
-                                <img src='images/$image' alt='$title' />
+                                <img src='$image' alt='$title' />
                                 <span>$title</span>
                             </td>
                             <td>\$ " . number_format($price, 2) . "</td>

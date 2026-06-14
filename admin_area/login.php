@@ -41,8 +41,9 @@ if (isset($_POST['admin_login'])) {
         if ($stmt) {
             mysqli_stmt_bind_param($stmt, "s", $username);
             mysqli_stmt_execute($stmt);
-            mysqli_stmt_bind_result($stmt, $stored_pass);
-            if (mysqli_stmt_fetch($stmt)) {
+            $res = mysqli_stmt_get_result($stmt);
+            if ($res && ($adm = mysqli_fetch_assoc($res))) {
+                $stored_pass = $adm['admin_pass'];
                 // Support both hashed and legacy plain-text passwords.
                 if (password_verify($password, $stored_pass)
                     || $password === $stored_pass) {

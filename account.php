@@ -19,7 +19,7 @@ if (isset($_POST['register'])) {
         $auth_error = "Please enter a valid email address.";
     } elseif (strlen($reg_pass) < 6) {
         $auth_error = "Your password must be at least 6 characters.";
-    } elseif (!($con instanceof mysqli)) {
+    } elseif (!($con instanceof PDO)) {
         $auth_error = "Accounts are unavailable right now. Please try again later.";
     } else {
         // Is the email already registered?
@@ -29,8 +29,8 @@ if (isset($_POST['register'])) {
         } else {
             mysqli_stmt_bind_param($stmt, "s", $reg_email);
             mysqli_stmt_execute($stmt);
-            mysqli_stmt_store_result($stmt);
-            $taken = mysqli_stmt_num_rows($stmt) > 0;
+            $res   = mysqli_stmt_get_result($stmt);
+            $taken = ($res && mysqli_fetch_assoc($res) !== null);
             mysqli_stmt_close($stmt);
 
             if ($taken) {
@@ -70,7 +70,7 @@ if (isset($_POST['login'])) {
 
     if ($login_email === '' || $login_pass === '') {
         $auth_error = "Please enter your email and password.";
-    } elseif (!($con instanceof mysqli)) {
+    } elseif (!($con instanceof PDO)) {
         $auth_error = "Sign-in is unavailable right now. Please try again later.";
     } else {
         $stmt = mysqli_prepare(
@@ -83,9 +83,15 @@ if (isset($_POST['login'])) {
         } else {
             mysqli_stmt_bind_param($stmt, "s", $login_email);
             mysqli_stmt_execute($stmt);
-            mysqli_stmt_bind_result($stmt, $uid, $uname, $uhash);
-            $found = mysqli_stmt_fetch($stmt);
+            $res  = mysqli_stmt_get_result($stmt);
+            $rowu = $res ? mysqli_fetch_assoc($res) : null;
             mysqli_stmt_close($stmt);
+            $found = ($rowu !== null);
+            if ($found) {
+                $uid   = $rowu['user_id'];
+                $uname = $rowu['user_name'];
+                $uhash = $rowu['user_password'];
+            }
         }
 
         if ($auth_error !== '') {

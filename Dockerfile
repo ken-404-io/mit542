@@ -1,9 +1,13 @@
 FROM php:8.0-apache
 
 # Install the PHP extensions the storefront needs.
-#   - mysqli: database access used throughout the app
-# (curl/openssl, used for Google OAuth, ship enabled in the base image.)
-RUN docker-php-ext-install mysqli
+#   - pdo_pgsql: PostgreSQL (Neon) access used throughout the app
+# (curl/openssl, used for Google OAuth and Cloudinary uploads, ship enabled
+#  in the base image.)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql \
+    && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache's rewrite module (clean URLs / future routing).
 RUN a2enmod rewrite

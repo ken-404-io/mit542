@@ -69,7 +69,7 @@ if (isset($_POST['place_order'])) {
         $error = "Please enter a valid email address.";
     } elseif (!in_array($method, $allowed_methods, true)) {
         $error = "Please choose a payment method.";
-    } elseif (!($con instanceof mysqli)) {
+    } elseif (!($con instanceof PDO)) {
         $error = "We can't place orders right now. Please try again later.";
     } else {
         $user_id = currentUserId();
@@ -85,8 +85,8 @@ if (isset($_POST['place_order'])) {
         // created yet — import database/orders.sql. Fail gracefully instead
         // of passing false to bind_param (which throws a fatal on PHP 8).
         if (!$stmt) {
-            $error = "Orders aren't set up yet. Please import database/orders.sql "
-                   . "into your database, then try again.";
+            $error = "Orders aren't set up yet. Please run database/schema_postgres.sql "
+                   . "against your database, then try again.";
         } else {
             mysqli_stmt_bind_param(
                 $stmt, "issssds",

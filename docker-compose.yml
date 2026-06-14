@@ -1,4 +1,4 @@
-# Brings up the storefront together with a MySQL database so the app
+# Brings up the storefront together with a PostgreSQL database so the app
 # actually works out of the box:  docker compose up --build
 # Then open http://localhost:8080
 services:
@@ -9,27 +9,32 @@ services:
     environment:
       # Point the app at the "db" service below.
       DB_HOST: db
-      DB_USER: root
+      DB_PORT: 5432
+      DB_USER: postgres
       DB_PASS: example
       DB_NAME: ecommerce_website
+      DB_SSLMODE: disable
       # Optional: enable "Sign up with Google" by supplying real credentials.
       # GOOGLE_CLIENT_ID: ""
       # GOOGLE_CLIENT_SECRET: ""
+      # Optional: enable Cloudinary image uploads from the admin panel.
+      # CLOUDINARY_CLOUD_NAME: ""
+      # CLOUDINARY_UPLOAD_PRESET: ""
     depends_on:
       db:
         condition: service_healthy
 
   db:
-    image: mysql:8.0
+    image: postgres:16
     environment:
-      MYSQL_ROOT_PASSWORD: example
-      MYSQL_DATABASE: ecommerce_website
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: ecommerce_website
     volumes:
-      # *.sql files here run on first boot against MYSQL_DATABASE.
-      - ./database:/docker-entrypoint-initdb.d:ro
-      - db_data:/var/lib/mysql
+      # *.sql files here run on first boot against POSTGRES_DB.
+      - ./database/schema_postgres.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pexample"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecommerce_website"]
       interval: 5s
       timeout: 5s
       retries: 10

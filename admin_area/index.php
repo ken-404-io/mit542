@@ -10,7 +10,7 @@ function countRows($con, $table) {
     if (!$con) {
         return 0;
     }
-    $res = dbQuery("SELECT COUNT(*) AS c FROM `$table`");
+    $res = dbQuery("SELECT COUNT(*) AS c FROM $table");
     if (!$res) {
         return 0;
     }
