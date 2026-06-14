@@ -16,6 +16,9 @@ DROP TABLE IF EXISTS categories  CASCADE;
 DROP TABLE IF EXISTS brands      CASCADE;
 DROP TABLE IF EXISTS users       CASCADE;
 DROP TABLE IF EXISTS admins      CASCADE;
+DROP TABLE IF EXISTS cart        CASCADE;
+DROP TABLE IF EXISTS customers   CASCADE;
+DROP TABLE IF EXISTS payments    CASCADE;
 
 -- ---- Categories ----
 CREATE TABLE categories (
@@ -81,6 +84,22 @@ CREATE TABLE order_items (
     unit_price    NUMERIC(10,2) NOT NULL DEFAULT 0,
     quantity      INTEGER NOT NULL DEFAULT 1,
     subtotal      NUMERIC(10,2) NOT NULL DEFAULT 0
+);
+
+-- ---- Empty structural tables carried over from the original MySQL
+--      database for a complete migration (the app does not use them;
+--      the cart lives in the PHP session and order/payment data is
+--      stored inline on the orders table). ----
+CREATE TABLE cart (
+    id SERIAL PRIMARY KEY
+);
+
+CREATE TABLE customers (
+    id SERIAL PRIMARY KEY
+);
+
+CREATE TABLE payments (
+    id SERIAL PRIMARY KEY
 );
 
 -- =====================================================
