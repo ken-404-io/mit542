@@ -52,6 +52,33 @@ define("GOOGLE_AUTH_URL",     "https://accounts.google.com/o/oauth2/v2/auth");
 define("GOOGLE_TOKEN_URL",    "https://oauth2.googleapis.com/token");
 define("GOOGLE_USERINFO_URL", "https://www.googleapis.com/oauth2/v3/userinfo");
 
+// Resolve a CA bundle so cURL can verify Google's TLS certificate. On a
+// default XAMPP/Windows PHP there is no CA bundle configured, which makes
+// the token request fail and surfaces as "Could not obtain access token
+// from Google". We fall back to the cacert.pem shipped next to this file.
+// Order of preference: explicit env var, php.ini settings, bundled file.
+if (!defined("GOOGLE_CAINFO")) {
+    $cainfo = getenv("GOOGLE_CAINFO")
+        ?: (ini_get("curl.cainfo")
+        ?: ini_get("openssl.cafile"));
+    if (!$cainfo || !is_file($cainfo)) {
+        $bundled = __DIR__ . "/cacert.pem";
+        $cainfo  = is_file($bundled) ? $bundled : "";
+    }
+    define("GOOGLE_CAINFO", $cainfo);
+}
+
+/* Apply TLS verification (using our CA bundle) to a cURL handle. Keeps
+   verification ON so the client secret and tokens are never sent over an
+   unverified connection. */
+function googleCurlSSL($ch) {
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+    if (GOOGLE_CAINFO !== "") {
+        curl_setopt($ch, CURLOPT_CAINFO, GOOGLE_CAINFO);
+    }
+}
+
 /* Returns true once real credentials have been configured. */
 function googleOAuthReady() {
     return GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_ID"
