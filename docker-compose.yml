@@ -1,0 +1,38 @@
+# Brings up the storefront together with a MySQL database so the app
+# actually works out of the box:  docker compose up --build
+# Then open http://localhost:8080
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      # Point the app at the "db" service below.
+      DB_HOST: db
+      DB_USER: root
+      DB_PASS: example
+      DB_NAME: ecommerce_website
+      # Optional: enable "Sign up with Google" by supplying real credentials.
+      # GOOGLE_CLIENT_ID: ""
+      # GOOGLE_CLIENT_SECRET: ""
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: ecommerce_website
+    volumes:
+      # *.sql files here run on first boot against MYSQL_DATABASE.
+      - ./database:/docker-entrypoint-initdb.d:ro
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pexample"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db_data:

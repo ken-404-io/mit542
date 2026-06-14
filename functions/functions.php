@@ -13,8 +13,14 @@ if (session_status() === PHP_SESSION_NONE) {
 // degrades gracefully instead of throwing a fatal exception.
 mysqli_report(MYSQLI_REPORT_OFF);
 
-// Database connection.
-$con = @mysqli_connect("localhost", "root", "", "ecommerce_website");
+// Database connection. Settings come from environment variables (so the app
+// runs in Docker against a separate DB container) and fall back to the classic
+// local XAMPP defaults when they are not set.
+$db_host = getenv("DB_HOST") ?: "localhost";
+$db_user = getenv("DB_USER") ?: "root";
+$db_pass = getenv("DB_PASS") ?: "";
+$db_name = getenv("DB_NAME") ?: "ecommerce_website";
+$con = @mysqli_connect($db_host, $db_user, $db_pass, $db_name);
 
 /* -----------------------------------------------------
    Sidebar: list all product categories.
