@@ -1,0 +1,10 @@
+# Keep the image small and never leak secrets or VCS metadata.
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+README.md
+
+# Git-ignored local secret overrides (real Google credentials).
+includes/google_config.local.php
+**/*.local.php
