@@ -34,6 +34,7 @@ $count      = cartCount();
                     <li><a href="account.php">My Account</a></li>
                     <?php if (isLoggedIn()): ?>
                         <li class="user_greeting">Hi, <?php echo htmlspecialchars(currentUserName()); ?></li>
+                        <li><a href="orders.php">My Orders</a></li>
                         <li><a href="logout.php">Logout</a></li>
                     <?php else: ?>
                         <li><a href="account.php#signup">Sign Up</a></li>

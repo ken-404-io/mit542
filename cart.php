@@ -110,7 +110,7 @@ include("header.php");
                     &larr; Continue Shopping
                 </a>
                 <a class="btn btn_ghost" href="cart.php?clear=1">Empty Cart</a>
-                <a class="btn btn_primary" href="#">Proceed to Checkout</a>
+                <a class="btn btn_primary" href="checkout.php">Proceed to Checkout</a>
             </div>
         </div>
     <?php endif; ?>
