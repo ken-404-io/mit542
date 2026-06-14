@@ -55,6 +55,19 @@ $start_tab = (isset($_GET['tab']) && $_GET['tab'] === 'signup') ? 'signup' : 'lo
             <form class="auth_form" id="form_signup" method="post" action="account.php">
                 <h3>Create Account</h3>
                 <p class="sub">It only takes a minute to get started.</p>
+
+                <?php if (isset($_GET['oauth_error'])): ?>
+                    <p class="alert_success" style="background:#fdecea;color:#c0392b;">
+                        Google sign-in failed: <?php echo htmlspecialchars($_GET['oauth_error']); ?>
+                    </p>
+                <?php endif; ?>
+
+                <a href="google_login.php" class="btn_google">
+                    <img src="https://www.google.com/favicon.ico" alt="" />
+                    Sign up with Google
+                </a>
+                <div class="auth_divider">or sign up with email</div>
+
                 <label>Full Name
                     <input type="text" name="reg_name"
                            placeholder="Jane Doe" required />

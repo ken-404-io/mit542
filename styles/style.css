@@ -604,6 +604,49 @@ img { display: block; max-width: 100%; }
 .auth_switch { text-align: center; margin-top: 18px; font-size: 14px; color: var(--muted); }
 .auth_switch a { color: var(--accent); font-weight: 600; cursor: pointer; }
 
+/* ---- "or" divider + Google button ---- */
+.auth_divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.auth_divider::before,
+.auth_divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+}
+
+.btn_google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn_google:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+}
+
+.btn_google img { width: 18px; height: 18px; }
+
 @media (max-width: 900px) {
     .auth_layout { grid-template-columns: 1fr; }
     .auth_aside { display: none; }
