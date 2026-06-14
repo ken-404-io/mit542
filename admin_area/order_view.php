@@ -20,10 +20,12 @@ if (isset($_POST['update_order']) && $con && $order_id > 0) {
             $con,
             "UPDATE orders SET order_status = ?, payment_status = ? WHERE order_id = ?"
         );
-        mysqli_stmt_bind_param($stmt, "ssi", $new_status, $new_payment, $order_id);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-        $message = "Order updated.";
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "ssi", $new_status, $new_payment, $order_id);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+            $message = "Order updated.";
+        }
     }
 }
 
