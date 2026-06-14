@@ -18,7 +18,7 @@ $user_id  = currentUserId();
 
 // Load the order and make sure it belongs to the signed-in customer.
 $order = null;
-if ($order_id > 0 && ($con instanceof mysqli)) {
+if ($order_id > 0 && ($con instanceof PDO)) {
     $stmt = mysqli_prepare(
         $con,
         "SELECT order_id, order_total, payment_status, payment_method

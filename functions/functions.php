@@ -9,34 +9,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Use classic (non-throwing) mysqli error handling so a failed query
-// degrades gracefully instead of throwing a fatal exception.
-mysqli_report(MYSQLI_REPORT_OFF);
-
-// Database connection. Settings come from environment variables (so the app
-// runs in Docker against a separate DB container) and fall back to the classic
-// local XAMPP defaults when they are not set.
-$db_host = getenv("DB_HOST") ?: "localhost";
-$db_user = getenv("DB_USER") ?: "root";
-$db_pass = getenv("DB_PASS") ?: "";
-$db_name = getenv("DB_NAME") ?: "ecommerce_website";
-$con = @mysqli_connect($db_host, $db_user, $db_pass, $db_name);
-
-/* -----------------------------------------------------
-   Run a query, but only when we actually hold a live
-   connection. If the database is unreachable, mysqli_connect()
-   returns false; passing that straight to mysqli_query() throws
-   a fatal TypeError on PHP 8. Returning false here instead lets
-   every caller fall back to its empty-state message and keeps
-   the page rendering.
-   ----------------------------------------------------- */
-function dbQuery($sql) {
-    global $con;
-    if (!($con instanceof mysqli)) {
-        return false;
-    }
-    return mysqli_query($con, $sql);
-}
+// Shared database layer (PostgreSQL via PDO) + mysqli compatibility shim,
+// plus media/image helpers. These define $con and dbQuery() used below.
+require_once __DIR__ . "/db.php";
+require_once __DIR__ . "/media.php";
 
 /* -----------------------------------------------------
    Sidebar: list all product categories.
@@ -80,10 +56,12 @@ function renderProductCard($row) {
     $pro_price = $row['product_price'];
     $pro_image = $row['product_image'];
 
+    $pro_image_url = productImageUrl($pro_image);
+
     echo "
     <div class='product_card'>
         <a href='details.php?pro_id=$pro_id' class='product_thumb'>
-            <img src='images/$pro_image' alt='$pro_title' />
+            <img src='$pro_image_url' alt='$pro_title' />
         </a>
         <div class='product_body'>
             <h3 class='product_title'>$pro_title</h3>
@@ -110,7 +88,7 @@ function getPro() {
     if (isset($_GET['cat']) || isset($_GET['brand'])) {
         return;
     }
-    $run = dbQuery("SELECT * FROM products ORDER BY RAND() LIMIT 0,6");
+    $run = dbQuery("SELECT * FROM products ORDER BY RANDOM() LIMIT 6");
     if (!$run || mysqli_num_rows($run) === 0) {
         echo "<p class='empty_state'>No products available yet.</p>";
         return;

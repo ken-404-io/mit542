@@ -31,18 +31,12 @@ if (isset($_POST['update_post']) && $con) {
     // Replace the image only when a new one is uploaded.
     if (!empty($_FILES['product_image']['name'])
         && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
-        $allowed = array("jpg", "jpeg", "png", "gif", "webp");
-        $ext = strtolower(pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION));
-        if (!in_array($ext, $allowed)) {
-            $errors[] = "Image must be a JPG, PNG, GIF, or WEBP file.";
+        $upload_error = null;
+        $stored = uploadProductImage($_FILES['product_image'], $upload_error);
+        if ($stored === false) {
+            $errors[] = $upload_error ?: "Could not save the uploaded image.";
         } else {
-            $new_name = "prod_" . time() . "_" . mt_rand(1000, 9999) . "." . $ext;
-            if (move_uploaded_file($_FILES['product_image']['tmp_name'],
-                    __DIR__ . "/../images/" . $new_name)) {
-                $product_image = $new_name;
-            } else {
-                $errors[] = "Could not save the uploaded image.";
-            }
+            $product_image = $stored;
         }
     }
 
@@ -159,7 +153,7 @@ include("includes/admin_header.php");
 
             <div class="field full">
                 <label>Current Image</label>
-                <img src="../images/<?php echo htmlspecialchars($product['product_image']); ?>"
+                <img src="<?php echo htmlspecialchars(productImageUrl($product['product_image'], '../images/')); ?>"
                      alt="" class="admin_thumb" style="display:block;margin-bottom:8px;" />
                 <input type="file" name="product_image" accept="image/*" />
                 <p class="hint">Leave empty to keep the current image.</p>

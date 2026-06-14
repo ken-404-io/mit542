@@ -113,9 +113,9 @@ if (isset($con) && $con) {
     if ($stmt) {
         mysqli_stmt_bind_param($stmt, "s", $email);
         mysqli_stmt_execute($stmt);
-        mysqli_stmt_bind_result($stmt, $found_id);
-        if (mysqli_stmt_fetch($stmt)) {
-            $user_id = (int) $found_id;
+        $res = mysqli_stmt_get_result($stmt);
+        if ($res && ($found = mysqli_fetch_assoc($res))) {
+            $user_id = (int) $found['user_id'];
         }
         mysqli_stmt_close($stmt);
 

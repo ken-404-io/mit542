@@ -67,7 +67,7 @@ include("includes/admin_header.php");
                 <?php while ($row = mysqli_fetch_assoc($run)):
                     $pid = (int) $row['product_id']; ?>
                 <tr>
-                    <td><img src="../images/<?php echo htmlspecialchars($row['product_image']); ?>"
+                    <td><img src="<?php echo htmlspecialchars(productImageUrl($row['product_image'], '../images/')); ?>"
                              alt="" class="admin_thumb" /></td>
                     <td><?php echo htmlspecialchars($row['product_title']); ?></td>
                     <td><?php echo htmlspecialchars($row['cat_title'] ?? '—'); ?></td>

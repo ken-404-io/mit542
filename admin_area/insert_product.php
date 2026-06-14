@@ -21,61 +21,46 @@ if (isset($_POST['insert_post'])) {
     $product_desc     = trim($_POST['product_desc']);
     $product_keywords = trim($_POST['product_keywords']);
 
-    // --- Image upload (stored in ../images so the storefront can show it) ---
-    $product_image = $_FILES['product_image']['name'];
-    $image_tmp     = $_FILES['product_image']['tmp_name'];
-    $upload_dir    = __DIR__ . "/../images/";
-
     $errors = array();
 
     if ($product_cat <= 0)   { $errors[] = "Please choose a category."; }
     if ($product_brand <= 0) { $errors[] = "Please choose a brand."; }
 
-    // Validate the uploaded file.
-    if (empty($product_image) || $_FILES['product_image']['error'] !== UPLOAD_ERR_OK) {
-        $errors[] = "Please choose a product image.";
+    // Upload the image (to Cloudinary when configured, else local images/).
+    $product_image = "";
+    $upload_error  = null;
+    $stored = uploadProductImage($_FILES['product_image'] ?? array(), $upload_error);
+    if ($stored === false) {
+        $errors[] = $upload_error ?: "Please choose a valid product image.";
     } else {
-        $allowed = array("jpg", "jpeg", "png", "gif", "webp");
-        $ext = strtolower(pathinfo($product_image, PATHINFO_EXTENSION));
-        if (!in_array($ext, $allowed)) {
-            $errors[] = "Image must be a JPG, PNG, GIF, or WEBP file.";
-        } else {
-            // Unique, safe filename so uploads never clash or break paths.
-            $product_image = "prod_" . time() . "_" . mt_rand(1000, 9999) . "." . $ext;
-        }
+        $product_image = $stored;
     }
 
     if (empty($errors)) {
-        if (move_uploaded_file($image_tmp, $upload_dir . $product_image)) {
+        $stmt = mysqli_prepare(
+            $con,
+            "INSERT INTO products
+                (product_cat, product_brand, product_title, product_price,
+                 product_desc, product_image, product_keywords)
+             VALUES (?, ?, ?, ?, ?, ?, ?)"
+        );
 
-            $stmt = mysqli_prepare(
-                $con,
-                "INSERT INTO products
-                    (product_cat, product_brand, product_title, product_price,
-                     product_desc, product_image, product_keywords)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)"
+        if ($stmt) {
+            mysqli_stmt_bind_param(
+                $stmt, "iissdss",
+                $product_cat, $product_brand, $product_title, $product_price,
+                $product_desc, $product_image, $product_keywords
             );
 
-            if ($stmt) {
-                mysqli_stmt_bind_param(
-                    $stmt, "iissdss",
-                    $product_cat, $product_brand, $product_title, $product_price,
-                    $product_desc, $product_image, $product_keywords
-                );
-
-                if (mysqli_stmt_execute($stmt)) {
-                    $message = "Product \"" . htmlspecialchars($product_title) . "\" was inserted successfully.";
-                } else {
-                    $message = "Database error: could not insert product.";
-                    $message_type = "error";
-                }
-                mysqli_stmt_close($stmt);
+            if (mysqli_stmt_execute($stmt)) {
+                $message = "Product \"" . htmlspecialchars($product_title) . "\" was inserted successfully.";
             } else {
-                $message = "Database error: " . htmlspecialchars(mysqli_error($con));
+                $message = "Database error: could not insert product.";
                 $message_type = "error";
             }
+            mysqli_stmt_close($stmt);
         } else {
-            $message = "Could not save the uploaded image. Check folder permissions.";
+            $message = "Database error: " . htmlspecialchars(mysqli_error($con));
             $message_type = "error";
         }
     } else {

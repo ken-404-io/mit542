@@ -39,7 +39,7 @@ $paid   = isset($_GET['paid'])   ? (int) $_GET['paid']   : 0;
 
     <?php
     $run = false;
-    if ($con instanceof mysqli) {
+    if ($con instanceof PDO) {
         $stmt = mysqli_prepare(
             $con,
             "SELECT order_id, order_total, payment_method, payment_status,

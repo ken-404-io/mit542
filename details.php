@@ -15,13 +15,13 @@ include("header.php");
                 $pro_id    = $row_pro['product_id'];
                 $pro_title = $row_pro['product_title'];
                 $pro_price = $row_pro['product_price'];
-                $pro_image = $row_pro['product_image'];
+                $pro_image = productImageUrl($row_pro['product_image']);
                 $pro_desc  = $row_pro['product_desc'];
 
                 echo "
                 <div class='product_detail'>
                     <div class='detail_image'>
-                        <img src='images/$pro_image' alt='$pro_title' />
+                        <img src='$pro_image' alt='$pro_title' />
                     </div>
                     <div class='detail_info'>
                         <h2>$pro_title</h2>
