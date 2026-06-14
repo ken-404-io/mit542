@@ -122,7 +122,7 @@ include("includes/admin_header.php");
                     <option value="">Select a category</option>
                     <?php
                     if ($con) {
-                        $run_cats = mysqli_query($con, "SELECT * FROM categories");
+                        $run_cats = dbQuery("SELECT * FROM categories");
                         if ($run_cats) {
                             while ($row = mysqli_fetch_array($run_cats)) {
                                 $id    = (int) $row['cat_id'];
@@ -141,7 +141,7 @@ include("includes/admin_header.php");
                     <option value="">Select a brand</option>
                     <?php
                     if ($con) {
-                        $run_brands = mysqli_query($con, "SELECT * FROM brands");
+                        $run_brands = dbQuery("SELECT * FROM brands");
                         if ($run_brands) {
                             while ($row = mysqli_fetch_array($run_brands)) {
                                 $id    = (int) $row['brand_id'];

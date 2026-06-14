@@ -8,7 +8,7 @@ include("header.php");
     if (isset($_GET['pro_id'])) {
         $product_id = (int) $_GET['pro_id'];
         $get_pro = "SELECT * FROM products WHERE product_id='$product_id'";
-        $run_pro = mysqli_query($con, $get_pro);
+        $run_pro = dbQuery($get_pro);
 
         if ($run_pro && mysqli_num_rows($run_pro) > 0) {
             while ($row_pro = mysqli_fetch_array($run_pro)) {

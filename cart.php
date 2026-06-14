@@ -66,7 +66,7 @@ include("header.php");
                     $grand_total = 0;
                     foreach ($_SESSION['cart'] as $id => $qty) {
                         $id  = (int) $id;
-                        $run = mysqli_query($con,
+                        $run = dbQuery(
                             "SELECT * FROM products WHERE product_id='$id'");
                         if (!$run || mysqli_num_rows($run) === 0) {
                             continue;

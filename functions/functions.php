@@ -23,11 +23,27 @@ $db_name = getenv("DB_NAME") ?: "ecommerce_website";
 $con = @mysqli_connect($db_host, $db_user, $db_pass, $db_name);
 
 /* -----------------------------------------------------
+   Run a query, but only when we actually hold a live
+   connection. If the database is unreachable, mysqli_connect()
+   returns false; passing that straight to mysqli_query() throws
+   a fatal TypeError on PHP 8. Returning false here instead lets
+   every caller fall back to its empty-state message and keeps
+   the page rendering.
+   ----------------------------------------------------- */
+function dbQuery($sql) {
+    global $con;
+    if (!($con instanceof mysqli)) {
+        return false;
+    }
+    return mysqli_query($con, $sql);
+}
+
+/* -----------------------------------------------------
    Sidebar: list all product categories.
    ----------------------------------------------------- */
 function getCats() {
     global $con;
-    $run = mysqli_query($con, "SELECT * FROM categories");
+    $run = dbQuery("SELECT * FROM categories");
     if (!$run) {
         return;
     }
@@ -43,7 +59,7 @@ function getCats() {
    ----------------------------------------------------- */
 function getBrands() {
     global $con;
-    $run = mysqli_query($con, "SELECT * FROM brands");
+    $run = dbQuery("SELECT * FROM brands");
     if (!$run) {
         return;
     }
@@ -94,7 +110,7 @@ function getPro() {
     if (isset($_GET['cat']) || isset($_GET['brand'])) {
         return;
     }
-    $run = mysqli_query($con, "SELECT * FROM products ORDER BY RAND() LIMIT 0,6");
+    $run = dbQuery("SELECT * FROM products ORDER BY RAND() LIMIT 0,6");
     if (!$run || mysqli_num_rows($run) === 0) {
         echo "<p class='empty_state'>No products available yet.</p>";
         return;
@@ -114,7 +130,7 @@ function getCatPro() {
         return;
     }
     $cat_id = (int) $_GET['cat'];
-    $run = mysqli_query($con, "SELECT * FROM products WHERE product_cat='$cat_id'");
+    $run = dbQuery("SELECT * FROM products WHERE product_cat='$cat_id'");
     if (!$run || mysqli_num_rows($run) === 0) {
         echo "<p class='empty_state'>
                 There are no products in this category yet.
@@ -137,7 +153,7 @@ function getBrandPro() {
         return;
     }
     $brand_id = (int) $_GET['brand'];
-    $run = mysqli_query($con, "SELECT * FROM products WHERE product_brand='$brand_id'");
+    $run = dbQuery("SELECT * FROM products WHERE product_brand='$brand_id'");
     if (!$run || mysqli_num_rows($run) === 0) {
         echo "<p class='empty_state'>
                 There are no products for this brand yet.
@@ -155,7 +171,7 @@ function getBrandPro() {
    ----------------------------------------------------- */
 function getProducts() {
     global $con;
-    $run = mysqli_query($con, "SELECT * FROM products");
+    $run = dbQuery("SELECT * FROM products");
     if (!$run || mysqli_num_rows($run) === 0) {
         echo "<p class='empty_state'>No products available yet.</p>";
         return;
