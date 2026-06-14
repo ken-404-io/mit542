@@ -22,7 +22,7 @@ if (isset($_GET['user_query']) && trim($_GET['user_query']) !== "") {
     $heading = "Browsing Brand";
 }
 
-$run = mysqli_query($con, "SELECT * FROM products $where");
+$run = dbQuery("SELECT * FROM products $where");
 ?>
 
 <section class="section">
