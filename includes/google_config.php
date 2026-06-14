@@ -79,10 +79,17 @@ function googleCurlSSL($ch) {
     }
 }
 
-/* Returns true once real credentials have been configured. */
+/* Returns true once real credentials have been configured. Leftover
+   placeholders count as "not configured" so we show a clear setup message
+   instead of sending junk to Google (which returns "invalid client"). */
 function googleOAuthReady() {
-    return GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_ID"
-        && GOOGLE_CLIENT_SECRET !== "YOUR_GOOGLE_CLIENT_SECRET"
-        && GOOGLE_CLIENT_ID !== ""
-        && GOOGLE_CLIENT_SECRET !== "";
+    $placeholders = array(
+        "",
+        "YOUR_GOOGLE_CLIENT_ID",
+        "YOUR_GOOGLE_CLIENT_SECRET",
+        "PASTE_YOUR_CLIENT_ID_HERE",
+        "PASTE_YOUR_CLIENT_SECRET_HERE",
+    );
+    return !in_array(GOOGLE_CLIENT_ID, $placeholders, true)
+        && !in_array(GOOGLE_CLIENT_SECRET, $placeholders, true);
 }
