@@ -107,16 +107,19 @@ if (empty($email)) {
 }
 
 /* ---- Find or create the local user (only if a users table exists) ---- */
+$user_id = 0;
 if (isset($con) && $con) {
     $stmt = mysqli_prepare($con, "SELECT user_id FROM users WHERE user_email = ? LIMIT 1");
     if ($stmt) {
         mysqli_stmt_bind_param($stmt, "s", $email);
         mysqli_stmt_execute($stmt);
-        mysqli_stmt_store_result($stmt);
-        $exists = mysqli_stmt_num_rows($stmt) > 0;
+        mysqli_stmt_bind_result($stmt, $found_id);
+        if (mysqli_stmt_fetch($stmt)) {
+            $user_id = (int) $found_id;
+        }
         mysqli_stmt_close($stmt);
 
-        if (!$exists) {
+        if (!$user_id) {
             // New Google user: create a row with no local password.
             $ins = mysqli_prepare(
                 $con,
@@ -126,6 +129,7 @@ if (isset($con) && $con) {
             if ($ins) {
                 mysqli_stmt_bind_param($ins, "ss", $name, $email);
                 mysqli_stmt_execute($ins);
+                $user_id = (int) mysqli_insert_id($con);
                 mysqli_stmt_close($ins);
             }
         }
@@ -135,6 +139,7 @@ if (isset($con) && $con) {
 /* ---- Sign the user in ---- */
 session_regenerate_id(true);
 $_SESSION['user_logged_in'] = true;
+$_SESSION['user_id']        = $user_id;
 $_SESSION['user_email']     = $email;
 $_SESSION['user_name']      = $name;
 

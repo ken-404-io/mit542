@@ -51,8 +51,20 @@ function navActive($name, $current) {
             <a href="index.php" class="<?php echo navActive('dashboard', $active_nav); ?>">
                 <span class="ico">&#9632;</span> Dashboard
             </a>
+            <a href="manage_products.php" class="<?php echo navActive('manage_products', $active_nav); ?>">
+                <span class="ico">&#128230;</span> Products
+            </a>
             <a href="insert_product.php" class="<?php echo navActive('insert_product', $active_nav); ?>">
                 <span class="ico">&#43;</span> Insert Product
+            </a>
+            <a href="orders.php" class="<?php echo navActive('orders', $active_nav); ?>">
+                <span class="ico">&#128722;</span> Orders
+            </a>
+            <a href="users.php" class="<?php echo navActive('users', $active_nav); ?>">
+                <span class="ico">&#128100;</span> Users
+            </a>
+            <a href="reports.php" class="<?php echo navActive('reports', $active_nav); ?>">
+                <span class="ico">&#128202;</span> Reports
             </a>
             <div class="nav_group_label">Site</div>
             <a href="../index.php" target="_blank">

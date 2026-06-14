@@ -209,4 +209,12 @@ function currentUserName() {
     return 'Account';
 }
 
+// Database id of the signed-in user (0 when signed out or unknown).
+function currentUserId() {
+    return isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : 0;
+}
+
+// Shared order presentation helpers: orderStatuses(), statusBadge().
+require_once __DIR__ . "/order_helpers.php";
+
 ?>

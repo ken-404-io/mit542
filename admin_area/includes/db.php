@@ -1,5 +1,9 @@
 <?php
 
+// Use classic (non-throwing) mysqli error handling so a failed connection or
+// query degrades gracefully instead of throwing a fatal exception on PHP 8.
+mysqli_report(MYSQLI_REPORT_OFF);
+
 // Database connection for the admin area. Settings come from environment
 // variables (Docker) and fall back to the classic local XAMPP defaults.
 $db_host = getenv("DB_HOST") ?: "localhost";
