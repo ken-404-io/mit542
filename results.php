@@ -7,7 +7,10 @@ $heading = "All Products";
 $where   = "";
 
 if (isset($_GET['user_query']) && trim($_GET['user_query']) !== "") {
-    $q       = mysqli_real_escape_string($con, trim($_GET['user_query']));
+    $raw     = trim($_GET['user_query']);
+    // Only escape against a live connection; without one mysqli_real_escape_string()
+    // would throw a fatal TypeError. dbQuery() below already no-ops without a DB.
+    $q       = ($con instanceof mysqli) ? mysqli_real_escape_string($con, $raw) : addslashes($raw);
     $where   = "WHERE product_title LIKE '%$q%'
                 OR product_keywords LIKE '%$q%'
                 OR product_desc LIKE '%$q%'";
