@@ -169,4 +169,22 @@ function cartCount() {
     return 0;
 }
 
+/* -----------------------------------------------------
+   Auth helpers: is a user signed in, and what is their
+   display name? Set by google_callback.php / account.php.
+   ----------------------------------------------------- */
+function isLoggedIn() {
+    return !empty($_SESSION['user_logged_in']);
+}
+
+function currentUserName() {
+    if (!empty($_SESSION['user_name'])) {
+        return $_SESSION['user_name'];
+    }
+    if (!empty($_SESSION['user_email'])) {
+        return $_SESSION['user_email'];
+    }
+    return 'Account';
+}
+
 ?>

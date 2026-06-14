@@ -12,6 +12,31 @@ $start_tab = (isset($_GET['tab']) && $_GET['tab'] === 'signup') ? 'signup' : 'lo
         <p class="section_subtitle">Sign in or create a new account</p>
     </div>
 
+    <?php if (isLoggedIn()): ?>
+    <!-- ===== SIGNED-IN VIEW ===== -->
+    <div class="auth_layout">
+        <aside class="auth_aside">
+            <h2>Welcome back, <span><?php echo htmlspecialchars(currentUserName()); ?></span></h2>
+            <p>You're signed in<?php echo !empty($_SESSION['user_email'])
+                ? ' as ' . htmlspecialchars($_SESSION['user_email']) : ''; ?>.</p>
+            <ul class="auth_perks">
+                <li><span class="tick">&#10003;</span> Track every order in one place</li>
+                <li><span class="tick">&#10003;</span> Saved wishlist &amp; favourites</li>
+                <li><span class="tick">&#10003;</span> Faster, secure checkout</li>
+            </ul>
+        </aside>
+        <div class="auth_panel">
+            <h3>Your Account</h3>
+            <p class="sub">Signed in as
+                <strong><?php echo htmlspecialchars($_SESSION['user_email'] ?? currentUserName()); ?></strong>.</p>
+            <a href="index.php" class="btn btn_primary"
+               style="display:inline-block;margin-top:10px;">Continue shopping</a>
+            <a href="logout.php" class="btn btn_outline"
+               style="display:inline-block;margin-top:10px;margin-left:8px;">Log out</a>
+        </div>
+    </div>
+    <?php else: ?>
+
     <div class="auth_layout">
 
         <!-- ===== WELCOME PANEL ===== -->
@@ -88,9 +113,8 @@ $start_tab = (isset($_GET['tab']) && $_GET['tab'] === 'signup') ? 'signup' : 'lo
             </form>
         </div>
     </div>
-</section>
 
-<script>
+    <script>
     function showAuth(which) {
         var loginTab  = document.getElementById('tab_login');
         var signupTab = document.getElementById('tab_signup');
@@ -108,6 +132,8 @@ $start_tab = (isset($_GET['tab']) && $_GET['tab'] === 'signup') ? 'signup' : 'lo
     var startTab = '<?php echo $start_tab; ?>';
     if (location.hash === '#signup') { startTab = 'signup'; }
     showAuth(startTab);
-</script>
+    </script>
+    <?php endif; ?>
+</section>
 
 <?php include("footer.php"); ?>
