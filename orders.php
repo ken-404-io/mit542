@@ -46,9 +46,11 @@ $paid   = isset($_GET['paid'])   ? (int) $_GET['paid']   : 0;
                     order_status, created_at
                FROM orders WHERE user_id = ? ORDER BY order_id DESC"
         );
-        mysqli_stmt_bind_param($stmt, "i", $user_id);
-        mysqli_stmt_execute($stmt);
-        $run = mysqli_stmt_get_result($stmt);
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "i", $user_id);
+            mysqli_stmt_execute($stmt);
+            $run = mysqli_stmt_get_result($stmt);
+        }
     }
 
     if (!$run || mysqli_num_rows($run) === 0):

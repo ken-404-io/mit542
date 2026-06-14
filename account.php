@@ -24,34 +24,40 @@ if (isset($_POST['register'])) {
     } else {
         // Is the email already registered?
         $stmt = mysqli_prepare($con, "SELECT user_id FROM users WHERE user_email = ? LIMIT 1");
-        mysqli_stmt_bind_param($stmt, "s", $reg_email);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_store_result($stmt);
-        $taken = mysqli_stmt_num_rows($stmt) > 0;
-        mysqli_stmt_close($stmt);
-
-        if ($taken) {
-            $auth_error = "That email is already registered. Try signing in instead.";
+        if (!$stmt) {
+            $auth_error = "Accounts are unavailable right now. Please try again later.";
         } else {
-            $hash = password_hash($reg_pass, PASSWORD_DEFAULT);
-            $ins  = mysqli_prepare(
-                $con,
-                "INSERT INTO users (user_name, user_email, user_password) VALUES (?, ?, ?)"
-            );
-            mysqli_stmt_bind_param($ins, "sss", $reg_name, $reg_email, $hash);
-            if (mysqli_stmt_execute($ins)) {
-                $new_id = (int) mysqli_insert_id($con);
-                mysqli_stmt_close($ins);
-                session_regenerate_id(true);
-                $_SESSION['user_logged_in'] = true;
-                $_SESSION['user_id']        = $new_id;
-                $_SESSION['user_email']     = $reg_email;
-                $_SESSION['user_name']      = $reg_name;
-                header("Location: account.php");
-                exit;
+            mysqli_stmt_bind_param($stmt, "s", $reg_email);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_store_result($stmt);
+            $taken = mysqli_stmt_num_rows($stmt) > 0;
+            mysqli_stmt_close($stmt);
+
+            if ($taken) {
+                $auth_error = "That email is already registered. Try signing in instead.";
+            } else {
+                $hash = password_hash($reg_pass, PASSWORD_DEFAULT);
+                $ins  = mysqli_prepare(
+                    $con,
+                    "INSERT INTO users (user_name, user_email, user_password) VALUES (?, ?, ?)"
+                );
+                if ($ins) {
+                    mysqli_stmt_bind_param($ins, "sss", $reg_name, $reg_email, $hash);
+                    if (mysqli_stmt_execute($ins)) {
+                        $new_id = (int) mysqli_insert_id($con);
+                        mysqli_stmt_close($ins);
+                        session_regenerate_id(true);
+                        $_SESSION['user_logged_in'] = true;
+                        $_SESSION['user_id']        = $new_id;
+                        $_SESSION['user_email']     = $reg_email;
+                        $_SESSION['user_name']      = $reg_name;
+                        header("Location: account.php");
+                        exit;
+                    }
+                    mysqli_stmt_close($ins);
+                }
+                $auth_error = "Sorry, we couldn't create your account. Please try again.";
             }
-            mysqli_stmt_close($ins);
-            $auth_error = "Sorry, we couldn't create your account. Please try again.";
         }
     }
 }
@@ -71,13 +77,20 @@ if (isset($_POST['login'])) {
             $con,
             "SELECT user_id, user_name, user_password FROM users WHERE user_email = ? LIMIT 1"
         );
-        mysqli_stmt_bind_param($stmt, "s", $login_email);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_bind_result($stmt, $uid, $uname, $uhash);
-        $found = mysqli_stmt_fetch($stmt);
-        mysqli_stmt_close($stmt);
+        if (!$stmt) {
+            $auth_error = "Sign-in is unavailable right now. Please try again later.";
+            $found = false;
+        } else {
+            mysqli_stmt_bind_param($stmt, "s", $login_email);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_bind_result($stmt, $uid, $uname, $uhash);
+            $found = mysqli_stmt_fetch($stmt);
+            mysqli_stmt_close($stmt);
+        }
 
-        if (!$found) {
+        if ($auth_error !== '') {
+            // already set above
+        } elseif (!$found) {
             $auth_error = "No account found with that email.";
         } elseif ($uhash === '') {
             // Account was created via Google and has no local password.

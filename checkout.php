@@ -80,43 +80,54 @@ if (isset($_POST['place_order'])) {
                  customer_address, order_total, payment_method, payment_status, order_status)
              VALUES (?, ?, ?, ?, ?, ?, ?, 'unpaid', 'pending')"
         );
-        mysqli_stmt_bind_param(
-            $stmt, "issssds",
-            $user_id, $name, $email, $phone, $address, $grand_total, $method
-        );
 
-        if (mysqli_stmt_execute($stmt)) {
-            $order_id = (int) mysqli_insert_id($con);
-            mysqli_stmt_close($stmt);
-
-            // Save each line item with a price/title snapshot.
-            $item_stmt = mysqli_prepare(
-                $con,
-                "INSERT INTO order_items
-                    (order_id, product_id, product_title, unit_price, quantity, subtotal)
-                 VALUES (?, ?, ?, ?, ?, ?)"
+        // A false here almost always means the orders tables haven't been
+        // created yet — import database/orders.sql. Fail gracefully instead
+        // of passing false to bind_param (which throws a fatal on PHP 8).
+        if (!$stmt) {
+            $error = "Orders aren't set up yet. Please import database/orders.sql "
+                   . "into your database, then try again.";
+        } else {
+            mysqli_stmt_bind_param(
+                $stmt, "issssds",
+                $user_id, $name, $email, $phone, $address, $grand_total, $method
             );
-            foreach ($lines as $line) {
-                mysqli_stmt_bind_param(
-                    $item_stmt, "iisdid",
-                    $order_id, $line['product_id'], $line['title'],
-                    $line['price'], $line['qty'], $line['subtotal']
-                );
-                mysqli_stmt_execute($item_stmt);
-            }
-            mysqli_stmt_close($item_stmt);
 
-            // Cash on delivery skips the online payment step.
-            $_SESSION['cart'] = array();
-            if ($method === 'cod') {
-                header("Location: orders.php?placed=" . $order_id);
-            } else {
-                header("Location: payment.php?order=" . $order_id);
+            if (mysqli_stmt_execute($stmt)) {
+                $order_id = (int) mysqli_insert_id($con);
+                mysqli_stmt_close($stmt);
+
+                // Save each line item with a price/title snapshot.
+                $item_stmt = mysqli_prepare(
+                    $con,
+                    "INSERT INTO order_items
+                        (order_id, product_id, product_title, unit_price, quantity, subtotal)
+                     VALUES (?, ?, ?, ?, ?, ?)"
+                );
+                if ($item_stmt) {
+                    foreach ($lines as $line) {
+                        mysqli_stmt_bind_param(
+                            $item_stmt, "iisdid",
+                            $order_id, $line['product_id'], $line['title'],
+                            $line['price'], $line['qty'], $line['subtotal']
+                        );
+                        mysqli_stmt_execute($item_stmt);
+                    }
+                    mysqli_stmt_close($item_stmt);
+                }
+
+                // Cash on delivery skips the online payment step.
+                $_SESSION['cart'] = array();
+                if ($method === 'cod') {
+                    header("Location: orders.php?placed=" . $order_id);
+                } else {
+                    header("Location: payment.php?order=" . $order_id);
+                }
+                exit;
             }
-            exit;
+            mysqli_stmt_close($stmt);
+            $error = "Sorry, we couldn't place your order. Please try again.";
         }
-        mysqli_stmt_close($stmt);
-        $error = "Sorry, we couldn't place your order. Please try again.";
     }
 }
 

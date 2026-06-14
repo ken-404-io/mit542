@@ -16,10 +16,12 @@ if (isset($_POST['update_status']) && $con) {
     $new_status = trim($_POST['order_status']);
     if ($oid > 0 && in_array($new_status, orderStatuses(), true)) {
         $stmt = mysqli_prepare($con, "UPDATE orders SET order_status = ? WHERE order_id = ?");
-        mysqli_stmt_bind_param($stmt, "si", $new_status, $oid);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-        $message = "Order #$oid updated to " . ucfirst($new_status) . ".";
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "si", $new_status, $oid);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+            $message = "Order #$oid updated to " . ucfirst($new_status) . ".";
+        }
     }
 }
 
@@ -51,20 +53,21 @@ include("includes/admin_header.php");
     </div>
 
     <?php
+    $run = false;
     if ($con) {
         if ($valid_filter) {
             $stmt = mysqli_prepare(
                 $con,
                 "SELECT * FROM orders WHERE order_status = ? ORDER BY order_id DESC"
             );
-            mysqli_stmt_bind_param($stmt, "s", $filter);
-            mysqli_stmt_execute($stmt);
-            $run = mysqli_stmt_get_result($stmt);
+            if ($stmt) {
+                mysqli_stmt_bind_param($stmt, "s", $filter);
+                mysqli_stmt_execute($stmt);
+                $run = mysqli_stmt_get_result($stmt);
+            }
         } else {
             $run = dbQuery("SELECT * FROM orders ORDER BY order_id DESC");
         }
-    } else {
-        $run = false;
     }
 
     if (!$run || mysqli_num_rows($run) === 0): ?>

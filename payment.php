@@ -24,11 +24,13 @@ if ($order_id > 0 && ($con instanceof mysqli)) {
         "SELECT order_id, order_total, payment_status, payment_method
            FROM orders WHERE order_id = ? AND user_id = ? LIMIT 1"
     );
-    mysqli_stmt_bind_param($stmt, "ii", $order_id, $user_id);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-    $order = $res ? mysqli_fetch_assoc($res) : null;
-    mysqli_stmt_close($stmt);
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "ii", $order_id, $user_id);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        $order = $res ? mysqli_fetch_assoc($res) : null;
+        mysqli_stmt_close($stmt);
+    }
 }
 
 if (!$order) {
@@ -56,9 +58,11 @@ if (isset($_POST['pay_now'])) {
                 SET payment_status = 'paid', order_status = 'processing'
               WHERE order_id = ? AND user_id = ?"
         );
-        mysqli_stmt_bind_param($upd, "ii", $order_id, $user_id);
-        mysqli_stmt_execute($upd);
-        mysqli_stmt_close($upd);
+        if ($upd) {
+            mysqli_stmt_bind_param($upd, "ii", $order_id, $user_id);
+            mysqli_stmt_execute($upd);
+            mysqli_stmt_close($upd);
+        }
 
         header("Location: orders.php?paid=" . $order_id);
         exit;
