@@ -48,17 +48,38 @@ curl_setopt_array($ch, array(
     CURLOPT_POSTFIELDS     => http_build_query($token_fields),
     CURLOPT_TIMEOUT        => 15,
 ));
+googleCurlSSL($ch);
 $token_response = curl_exec($ch);
 $token_http     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$token_errno    = curl_errno($ch);
+$token_error    = curl_error($ch);
 curl_close($ch);
 
-if ($token_response === false || $token_http !== 200) {
-    oauthFail("Could not obtain access token from Google.");
+// cURL never completed the request (network or TLS failure).
+if ($token_response === false) {
+    if (in_array($token_errno, array(60, 77, 35), true)) {
+        oauthFail("Could not obtain access token from Google: TLS certificate "
+            . "could not be verified (cURL #$token_errno). Point curl.cainfo in "
+            . "php.ini at a cacert.pem (the repo ships one at includes/cacert.pem).");
+    }
+    oauthFail("Could not obtain access token from Google: " . $token_error);
 }
 
 $token_data = json_decode($token_response, true);
-if (empty($token_data['access_token'])) {
-    oauthFail("Google did not return an access token.");
+
+// Google answered but rejected the exchange — surface its actual reason
+// (e.g. redirect_uri_mismatch, invalid_client, invalid_grant).
+if ($token_http !== 200 || empty($token_data['access_token'])) {
+    $reason = "";
+    if (is_array($token_data)) {
+        $reason = !empty($token_data['error_description'])
+            ? $token_data['error_description']
+            : (!empty($token_data['error']) ? $token_data['error'] : "");
+    }
+    if ($reason === "") {
+        $reason = "HTTP $token_http";
+    }
+    oauthFail("Could not obtain access token from Google: " . $reason);
 }
 
 /* ---- Fetch the user's profile ---- */
@@ -68,6 +89,7 @@ curl_setopt_array($ch, array(
     CURLOPT_HTTPHEADER     => array("Authorization: Bearer " . $token_data['access_token']),
     CURLOPT_TIMEOUT        => 15,
 ));
+googleCurlSSL($ch);
 $profile_response = curl_exec($ch);
 $profile_http     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
