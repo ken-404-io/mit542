@@ -1,4 +1,4 @@
-FROM php:8.0-apache
+FROM php:8.2-apache
 
 # Install the PHP extensions the storefront needs.
 #   - pdo_pgsql: PostgreSQL (Neon) access used throughout the app
